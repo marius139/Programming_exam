@@ -4,30 +4,43 @@
 #include "iostream"
 #include "string"
 #include "vector"
+#include "time.h"
 
 class Exam
 {
+  //Initialize variables
   ros::NodeHandle nh;
   ros::Subscriber sub;
   std::string word;
   std::vector<std::string> wordList;
   int chosenPos;
   std::string chosenWord;
+  int iRand;
+  int arrSize;
 
 private:
 void question(){
+  //Initialize a random number dependent on time
+  srand(time(NULL));
+  iRand = rand() % wordList.size();
   chosenPos = 0;
-  chosenWord = wordList[chosenPos];
+  //Pick a word depending on the entry of the vector
+  chosenWord = wordList[iRand];
+  //Print this word to the terminal
   ROS_INFO_STREAM(chosenWord);
+  //Erase the entry, so that the same word will not be used multiple times in a sequence
+  wordList.erase(wordList.begin() + iRand);
 }
 
+  //Compare the word from Publisher, with the word selected from question function
 void compare (){
-    if(word.compare(chosenWord) != 0){
-      ROS_INFO_STREAM("Wrong");
+  //If the words are similar, then the value of .compare is 0 (The following 6 lines have been correct with an if-else statement)
+    while(word.compare(chosenWord) != 0){
+      ROS_INFO("Wrong");
+      ROS_INFO_STREAM(chosenWord);
+      sbCallback(); //Issue when building comes from here
     }
-    else{
-      ROS_INFO_STREAM("Correct");
-    }
+    ROS_INFO("Correct");
     question();
 }
 
@@ -43,9 +56,15 @@ public:
   //Exam constructor
   Exam()
   {
+    arrSize=5;
+  //  wordList.push_back("toast");
     wordList.push_back("toast");
+    wordList.push_back("beers");
+    wordList.push_back("trees");
+    wordList.push_back("bees");
+    wordList.push_back("fees");
     question();
-    //wordList[] = {"toast", "beers", "trees"};
+
   sub = nh.subscribe("publisher", 10, &Exam::sbCallback,this);
   };
 //Exam deconstructor
