@@ -18,12 +18,14 @@ int main(int argc, char **argv) {
 //we have to specify namespace for that particular command, in this case it is command string
   std::string word;
   std_msgs::String msg;
-
+//Explain the game
+  ROS_INFO("This is a game of words.");
+  ROS_INFO("Practice using a keyboard using the following words.");
 //start the loop with condition while ROS is OK do
   while(ros::ok())
   {
     //ROS_INFO will display the string on the terminal
-    ROS_INFO("Insert your word: ");
+    ROS_INFO("Insert your answer: ");
     //cin the string from terminal into word
     std::cin>>word;
     //insert word to std_msgs::String so we can send it over ROS as a message
@@ -35,3 +37,4 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
+
