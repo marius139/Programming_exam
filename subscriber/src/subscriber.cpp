@@ -1,9 +1,13 @@
 #include "ros/ros.h"
 #include "ros/console.h"
+
+//we're using this type of message to pass a string between nodes
 #include "std_msgs/String.h"
 #include "iostream"
 #include "string"
 #include "vector"
+
+//we're using the time to calculate a "random" number
 #include "time.h"
 
 class Exam
@@ -17,9 +21,9 @@ class Exam
   std::string chosenWord;
   int iRand;
   int arrSize;
-  int counterCorrect=0;
-  int counterWrong=0;
-
+  int counterCorrect;
+  int counterWrong;
+  int counterWord;
 
 private:
 void question(){
@@ -32,7 +36,7 @@ void question(){
   //Print this word to the terminal
   ROS_INFO_STREAM(chosenWord);
   //Erase the entry, so that the same word will not be used multiple times in a sequence
-  //wordList.erase(wordList.begin() + iRand);
+  wordList.erase(wordList.begin() + iRand);
 }
 
 void sbCallback (const std_msgs::String::ConstPtr& msg){
@@ -45,8 +49,8 @@ void sbCallback (const std_msgs::String::ConstPtr& msg){
 }
 //Different statements announced dependent on performance
 void win_lose(){
-//Switchcase for 10 correct answers and less than 10 wrong answers
-  if (counterCorrect == 10) {
+//Switchcase for 10 answers
+  if (counterCorrect+counterWrong == 10) {
     switch (counterWrong) {
       case 0:
       ROS_INFO("FANTASTIC!");
@@ -55,54 +59,59 @@ void win_lose(){
       ROS_INFO("You did good");
       break;
       case 4: case 5: case 6:
-      ROS_INFO("You did fine");
+      ROS_INFO("You did OK");
       break;
       case 7: case 8: case 9:
       ROS_INFO("You participated");
+      case 10:
+      ROS_INFO("I feel sorry for you");
       break;
     }
     ros::shutdown();
   }
-
-//Switchcase for 10 wrong answers and less than 10 correct answers
-  if (counterWrong == 10) {
-    switch (counterCorrect) {
-      case 0:
-      ROS_INFO("You suck");
-      break;
-      case 1: case 2: case 3:
-      ROS_INFO("You are bad");
-      break;
-      case 4: case 5: case 6:
-      ROS_INFO("You need to work on it");
-      break;
-      case 7: case 8: case 9:
-      ROS_INFO("You came close");
-      break;
-    }
-    ros::shutdown();
-  }
-
-
 }
 
-
   //Compare the word from Publisher, with the word selected from question function
-void compare (){
+void compare() {
 
+  //counterWord keeps track of if the word is spelled correctly
+  counterWord=0;
 
-  //If the words are similar, then the value of .compare is 0 (The following 6 lines have been correct with an if-else statement)
-    if(word.compare(chosenWord) != 0){
-      ROS_INFO("Wrong");
-      ROS_INFO("The word was: ");
-      ROS_INFO_STREAM(chosenWord);
-      counterWrong++;
+  //Here we check if the word is spelled correctly
+  //First we check if the user typed in a word of the correct length
+  if(word.size()==chosenWord.size()) {
+    //if the length  is correct, we use a for loop to compare all the characters in the two words
+    for (int i = 0; i<chosenWord.size(); i++) {
+      //if the two characters are equal to each other, increase the chosenWord counter
+      if (word[i]==chosenWord[i]) {
+          counterWord++;
+
+          //if the two characters are NOT equal to each other
+        } else {
+          //write message to the terminal, and increase the counter for the amount of wrong words
+          ROS_INFO("Wrong");
+          ROS_INFO("The word was: ");
+          ROS_INFO_STREAM(chosenWord);
+          counterWrong++;
+          //break out of the for loop
+          break;
     }
-    else{
-      ROS_INFO("Correct");
-      ROS_INFO("The word was: ");
-      counterCorrect++;
-    }
+  }
+
+//if the two words are not of equal size
+} else {
+  //write message to the terminal, and increase the counter for the amount of wrong words
+  ROS_INFO("Wrong");
+  ROS_INFO("The words arent the same length");
+  counterWrong++;
+}
+  //if the for loop has successfully run through all the letters of the word, it is spelled correctly
+  if(counterWord==chosenWord.size()) {
+    ROS_INFO("Correct");
+    //increase the counter for amount of correct words
+    counterCorrect++;
+  }
+    //write a message to terminal, and call functions win_lose and question
     ROS_INFO_STREAM ("Number of correct answers: " << counterCorrect);
     ROS_INFO_STREAM ("Number of wrong answers: " << counterWrong);
     win_lose();
@@ -113,12 +122,31 @@ public:
   //Exam constructor
   Exam()
   {
+    //set the counters to 0
+    counterCorrect=0;
+    counterWrong=0;
   //  wordList.push_back("toast");
     wordList.push_back("toast");
     wordList.push_back("beers");
     wordList.push_back("trees");
     wordList.push_back("bees");
     wordList.push_back("fees");
+    wordList.push_back("beautiful");
+    wordList.push_back("shawarma");
+    wordList.push_back("christmas");
+    wordList.push_back("daniel");
+    wordList.push_back("jonathan");
+    wordList.push_back("kim");
+    wordList.push_back("marius");
+    wordList.push_back("oskar");
+    wordList.push_back("anton");
+    wordList.push_back("karl");
+    wordList.push_back("matthias");
+    wordList.push_back("programming");
+    wordList.push_back("turtlebot");
+    wordList.push_back("santa");
+    wordList.push_back("death");
+    wordList.push_back("exam");
     question();
 
   sub = nh.subscribe("publisher", 10, &Exam::sbCallback,this);
