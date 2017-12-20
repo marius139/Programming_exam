@@ -7,10 +7,10 @@ int main(int argc, char **argv) {
 
 // initializes ROS commands
   ros::init (argc, argv, "publisher");
+  
 //name of the node that communicates with the ROS system
   ros::NodeHandle nh;
 //inializes publisher and gives it a task
-//for more info see wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29
   ros::Publisher pub = nh.advertise<std_msgs::String>("publisher",10);
 
 //set  the number of iterations per second
