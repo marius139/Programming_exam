@@ -124,7 +124,7 @@ public:
     
     question();
 
-  sub = nh.subscribe("publisher", 10, &Exam::sbCallback,this);
+  sub = nh.subscribe("game", 10, &Exam::sbCallback,this);
   };
 //Exam deconstructor
 ~Exam(){};
